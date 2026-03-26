@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>进厂人员管理</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'PingFang SC','Hiragino Sans GB',sans-serif;background:#f0f2f5;min-height:100vh;max-width:480px;margin:0 auto}
+.header{background:linear-gradient(135deg,#1a6fc4,#0d4a8a);color:#fff;padding:16px;display:flex;align-items:center;position:sticky;top:0;z-index:10;box-shadow:0 2px 12px rgba(13,74,138,.3)}
+.header-title{flex:1;text-align:center;font-size:17px;font-weight:700;letter-spacing:1px}
+.back-btn{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0 10px 0 0;line-height:1}
+.add-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:20px;padding:5px 14px;font-size:13px;cursor:pointer;font-weight:600;white-space:nowrap}
+.body{padding:14px}
+.search-input{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid #dde3f0;font-size:14px;background:#fff;outline:none;margin-bottom:10px}
+.filter-row{display:flex;gap:6px;margin-bottom:12px}
+.filter-btn{flex:1;padding:7px 0;border-radius:8px;border:1.5px solid #dde3f0;background:#fff;font-size:12px;color:#666;cursor:pointer;font-family:inherit}
+.filter-btn.active{background:#1a6fc4;color:#fff;border-color:#1a6fc4;font-weight:700}
+.stats-row{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto}
+.stat-card{flex:0 0 auto;min-width:64px;background:#fff;border-radius:12px;padding:10px 6px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.stat-num{font-size:20px;font-weight:800;color:#1a6fc4}
+.stat-label{font-size:10px;color:#999;margin-top:2px}
+.list{display:flex;flex-direction:column;gap:10px}
+.empty{text-align:center;color:#bbb;padding:50px 0;font-size:15px}
+.card{background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,.07);cursor:pointer}
+.card:active{transform:scale(.98)}
+.card-top{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.card-name{font-size:16px;font-weight:700;color:#1a1a2e}
+.card-row{display:flex;justify-content:space-between;font-size:12px;color:#555;margin-bottom:4px}
+.card-note{margin-top:5px;font-size:12px;color:#1a6fc4;background:#eef4ff;border-radius:6px;padding:3px 8px}
+.badge{display:inline-block;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:700}
+.badge-active{background:#e8f5e9;color:#2e7d32}
+.badge-urgent{background:#fff3e0;color:#e65100}
+.badge-expired{background:#fce4ec;color:#c62828}
+.mode-tag{border-radius:6px;padding:2px 7px;font-size:11px;font-weight:700;display:inline-block}
+.mode-日结{background:#fff8e1;color:#f57f17}
+.mode-（周结）{background:#e8f5e9;color:#2e7d32}
+.mode-月结{background:#e3f2fd;color:#1565c0}
+.mode-劳务{background:#f3e5f5;color:#7b1fa2}
+.fee-badge{border-radius:6px;padding:2px 7px;font-size:11px;font-weight:700;display:inline-block}
+.fee-pending{background:#fce4ec;color:#c62828}
+.fee-out{background:#e8f5e9;color:#2e7d32}
+.form-card{background:#fff;border-radius:16px;padding:20px 18px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:13px;color:#555;font-weight:600;margin-bottom:6px}
+.form-input{width:100%;padding:11px 13px;border:1.5px solid #dde3f0;border-radius:10px;font-size:15px;outline:none;background:#fafbff;font-family:inherit}
+.form-input:focus{border-color:#1a6fc4}
+.btn-row{display:flex;gap:8px}
+.sel-btn{flex:1;padding:10px 0;border-radius:10px;border:1.5px solid #dde3f0;background:#f5f7fb;font-size:13px;color:#666;cursor:pointer;font-weight:600;font-family:inherit}
+.sel-btn.active{background:#1a6fc4;color:#fff;border-color:#1a6fc4}
+.sel-btn.fee-active-out{background:#2e7d32;color:#fff;border-color:#2e7d32}
+.sel-btn.fee-active-pending{background:#e53935;color:#fff;border-color:#e53935}
+.save-btn{width:100%;padding:14px;background:linear-gradient(90deg,#1a6fc4,#2196f3);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;letter-spacing:2px;font-family:inherit}
+.detail-card{background:#fff;border-radius:16px;padding:20px 18px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.detail-header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.detail-avatar{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#1a6fc4,#42a5f5);color:#fff;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.detail-name{font-size:20px;font-weight:800;color:#1a1a2e}
+.detail-sub{font-size:13px;color:#888;margin-top:2px}
+.divider{height:1px;background:#f0f2f5;margin:0 -18px 16px}
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #f5f7fa;font-size:14px}
+.detail-key{color:#999;font-weight:500}
+.detail-val{color:#1a1a2e;font-weight:600}
+.detail-btns{display:flex;gap:12px;margin-top:20px}
+.edit-btn{flex:1;padding:12px;background:#eef4ff;color:#1a6fc4;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.delete-btn{flex:1;padding:12px;background:#fff0f0;color:#e53935;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.toggle-fee-btn{padding:6px 16px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:rgba(30,30,50,.88);color:#fff;padding:9px 22px;border-radius:20px;font-size:13px;z-index:100;white-space:nowrap;transition:opacity .3s;pointer-events:none}
+.loading{position:fixed;inset:0;background:rgba(255,255,255,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;gap:14px;font-size:14px;color:#666}
+.spinner{width:36px;height:36px;border:3px solid #dde3f0;border-top-color:#1a6fc4;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="loading" id="loadingScreen"><div class="spinner"></div><span>连接云端数据库...</span></div>
+<div id="appMain" style="display:none">
+  <div class="header">
+    <button class="back-btn" id="backBtn" style="display:none" onclick="goBack()">‹</button>
+    <div class="header-title" id="headerTitle">进厂人员管理</div>
+    <button class="add-btn" id="addBtn" onclick="openAdd()">＋ 新增</button>
+  </div>
+  <div id="viewList" class="body">
+    <input class="search-input" id="searchInput" placeholder="🔍 搜索姓名 / 厂名 / 电话" oninput="renderList()">
+    <div class="filter-row" id="filterRow"></div>
+    <div class="stats-row" id="statsRow"></div>
+    <div class="list" id="cardList"></div>
+  </div>
+  <div id="viewForm" class="body" style="display:none">
+    <div class="form-card">
+      <div class="form-group"><label class="form-label">姓名 *</label><input class="form-input" id="fName" type="text" placeholder="请输入姓名"></div>
+      <div class="form-group"><label class="form-label">进厂日期 *</label><input class="form-input" id="fDate" type="date"></div>
+      <div class="form-group"><label class="form-label">厂名 *</label><input class="form-input" id="fFactory" type="text" placeholder="请输入厂名"></div>
+      <div class="form-group"><label class="form-label">劳务公司</label><input class="form-input" id="fLabor" type="text" placeholder="选填"></div>
+      <div class="form-group">
+        <label class="form-label">结算模式 *</label>
+        <div class="btn-row" id="modeRow">
+          <button class="sel-btn active" onclick="setMode(this,'日结')">日结</button>
+          <button class="sel-btn" onclick="setMode(this,'（周结）')">（周结）</button>
+          <button class="sel-btn" onclick="setMode(this,'月结')">月结</button>
+          <button class="sel-btn" onclick="setMode(this,'劳务')">劳务</button>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">工期截止日期</label><input class="form-input" id="fDeadline" type="date"></div>
+      <div class="form-group"><label class="form-label">联系电话 *</label><input class="form-input" id="fPhone" type="tel" placeholder="请输入手机号"></div>
+      <div class="form-group"><label class="form-label">费用</label><input class="form-input" id="fFee" type="text" placeholder="选填，如介绍费金额等"></div>
+      <div class="form-group">
+        <label class="form-label">费用状态</label>
+        <div class="btn-row" id="feeRow">
+          <button class="sel-btn fee-active-pending active" onclick="setFee(this,'未出')">未出</button>
+          <button class="sel-btn" onclick="setFee(this,'已出')">已出</button>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">备注</label><input class="form-input" id="fNote" type="text" placeholder="选填，如班组/岗位等"></div>
+      <button class="save-btn" id="saveBtn" onclick="saveRecord()">确认添加</button>
+    </div>
+  </div>
+  <div id="viewDetail" class="body" style="display:none"><div class="detail-card" id="detailCard"></div></div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({apiKey:"AIzaSyBv186fSY8hdVoqFpvHIQ-NVj8LyiC2y5Q",authDomain:"workers-26ae2.firebaseapp.com",projectId:"workers-26ae2",appId:"1:356348490795:web:85e54733d58d71e68da66e"});
+const db=firebase.firestore(),col=db.collection('workers');
+let records=[],editId=null,selMode='日结',selFee='未出',filterMode='全部',firstLoad=true;
+const tmout=setTimeout(()=>{if(firstLoad)showErr('连接超时，请确认已开VPN')},10000);
+function fmt(d){if(!d)return'-';const[,m,day]=d.split('-');return m+'月'+day+'日';}
+function dlBadge(dl){if(!dl)return'';const t=new Date();t.setHours(0,0,0,0);const d=Math.ceil((new Date(dl)-t)/86400000);if(d<0)return'<span class="badge badge-expired">已到期</span>';if(d<=3)return'<span class="badge badge-urgent">剩'+d+'天</span>';return'<span class="badge badge-active">进行中</span>';}
+function toast(msg){let t=document.getElementById('toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t);}t.textContent=msg;t.style.opacity='1';clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity='0',2200);}
+function showView(v){document.getElementById('viewList').style.display=v==='list'?'':'none';document.getElementById('viewForm').style.display=v==='form'?'':'none';document.getElementById('viewDetail').style.display=v==='detail'?'':'none';document.getElementById('backBtn').style.display=v==='list'?'none':'';document.getElementById('addBtn').style.display=v==='list'?'':'none';document.getElementById('headerTitle').textContent=v==='list'?'进厂人员管理':v==='form'?(editId?'编辑记录':'新增进厂'):'人员详情';}
+function showErr(msg){document.getElementById('loadingScreen').innerHTML='<div style="padding:30px;text-align:center;line-height:2"><div style="font-size:30px">⚠️</div><div style="color:#e53935;font-weight:700">连接失败</div><div style="color:#666;font-size:13px">'+msg+'</div><button onclick="location.reload()" style="margin-top:16px;padding:9px 28px;border-radius:10px;border:none;background:#1a6fc4;color:#fff;font-size:14px;cursor:pointer">重试</button></div>';}
+function goBack(){showView('list');}
+function setFilter(m){filterMode=m;renderList();}
+function setMode(btn,m){selMode=m;document.querySelectorAll('#modeRow .sel-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function setFee(btn,s){selFee=s;document.querySelectorAll('#feeRow .sel-btn').forEach(b=>{b.classList.remove('active','fee-active-out','fee-active-pending');});btn.classList.add('active',s==='已出'?'fee-active-out':'fee-active-pending');}
+function renderList(){
+  const q=(document.getElementById('searchInput').value||'').trim();
+  document.getElementById('filterRow').innerHTML=['全部','日结','（周结）','月结','劳务'].map(m=>'<button class="filter-btn'+(filterMode===m?' active':'')+'" onclick="setFilter(\''+m+'\')">'+m+'</button>').join('');
+  document.getElementById('statsRow').innerHTML='<div class="stat-card"><div class="stat-num">'+records.length+'</div><div class="stat-label">总人数</div></div>'+['日结','（周结）','月结','劳务'].map(m=>'<div class="stat-card"><div class="stat-num">'+records.filter(r=>r.mode===m).length+'</div><div class="stat-label">'+m+'</div></div>').join('');
+  const list=records.filter(r=>(!q||r.name.includes(q)||r.factory.includes(q)||r.phone.includes(q))&&(filterMode==='全部'||r.mode===filterMode));
+  document.getElementById('cardList').innerHTML=list.length?list.map(r=>'<div class="card" onclick="openDetail(\''+r.id+'\')"><div class="card-top"><span class="card-name">'+r.name+'</span><span class="mode-tag mode-'+r.mode+'">'+r.mode+'</span>'+dlBadge(r.deadline)+'<span class="fee-badge '+(r.feeStatus==='已出'?'fee-out':'fee-pending')+'">'+(r.feeStatus||'未出')+'</span></div><div class="card-row"><span>🏭 '+r.factory+'</span><span>📅 '+fmt(r.date)+' 进厂</span></div><div class="card-row"><span>📱 '+r.phone+'</span>'+(r.deadline?'<span>工期至 '+fmt(r.deadline)+'</span>':'')+'</div>'+(r.fee?'<div class="card-note">💰 费用：'+r.fee+'</div>':'')+(r.labor?'<div class="card-note">🏢 劳务：'+r.labor+'</div>':'')+(r.note?'<div class="card-note">📝 备注：'+r.note+'</div>':'')+'</div>').join(''):'<div class="empty">暂无记录</div>';
+}
+function openAdd(){editId=null;selMode='日结';selFee='未出';['fName','fDate','fFactory','fLabor','fDeadline','fPhone','fFee','fNote'].forEach(id=>document.getElementById(id).value='');document.querySelectorAll('#modeRow .sel-btn').forEach((b,i)=>b.classList.toggle('active',i===0));const fb=document.querySelectorAll('#feeRow .sel-btn');fb[0].className='sel-btn active fee-active-pending';fb[1].className='sel-btn';document.getElementById('saveBtn').textContent='确认添加';showView('form');}
+function openEdit(id){const r=records.find(x=>x.id===id);if(!r)return;editId=id;selMode=r.mode;selFee=r.feeStatus||'未出';document.getElementById('fName').value=r.name;document.getElementById('fDate').value=r.date;document.getElementById('fFactory').value=r.factory;document.getElementById('fLabor').value=r.labor||'';document.getElementById('fDeadline').value=r.deadline||'';document.getElementById('fPhone').value=r.phone;document.getElementById('fFee').value=r.fee||'';document.getElementById('fNote').value=r.note||'';document.querySelectorAll('#modeRow .sel-btn').forEach(b=>b.classList.toggle('active',b.textContent===selMode));document.querySelectorAll('#feeRow .sel-btn').forEach(b=>{b.className='sel-btn'+(b.textContent===selFee?' active '+(selFee==='已出'?'fee-active-out':'fee-active-pending'):'');});document.getElementById('saveBtn').textContent='保存修改';showView('form');}
+async function saveRecord(){const name=document.getElementById('fName').value.trim(),date=document.getElementById('fDate').value,factory=document.getElementById('fFactory').value.trim(),phone=document.getElementById('fPhone').value.trim();if(!name)return toast('请填写姓名');if(!date)return toast('请选择进厂日期');if(!factory)return toast('请填写厂名');if(!phone)return toast('请填写联系电话');const rec={name,date,factory,labor:document.getElementById('fLabor').value.trim(),mode:selMode,deadline:document.getElementById('fDeadline').value,phone,fee:document.getElementById('fFee').value.trim(),feeStatus:selFee,note:document.getElementById('fNote').value.trim(),updatedAt:Date.now()};try{if(editId){await col.doc(editId).update(rec);toast('修改成功 ✅');}else{rec.createdAt=Date.now();await col.add(rec);toast('添加成功 ✅');}editId=null;showView('list');}catch(e){toast('保存失败，请检查网络');}}
+function openDetail(id){const r=records.find(x=>x.id===id);if(!r)return;const isOut=r.feeStatus==='已出';document.getElementById('detailCard').innerHTML='<div class="detail-header"><div class="detail-avatar">'+r.name[0]+'</div><div><div class="detail-name">'+r.name+'</div><div class="detail-sub">'+r.factory+'</div></div><div style="margin-left:auto;text-align:right"><span class="mode-tag mode-'+r.mode+'">'+r.mode+'</span><br><span style="margin-top:4px;display:inline-block">'+dlBadge(r.deadline)+'</span></div></div><div class="divider"></div>'+[['进厂日期',fmt(r.date)],['劳务公司',r.labor||'无'],['工期截止',r.deadline?fmt(r.deadline):'未设置'],['联系电话',r.phone],['费用',r.fee||'无'],['备注',r.note||'无']].map(([k,v])=>'<div class="detail-row"><span class="detail-key">'+k+'</span><span class="detail-val">'+v+'</span></div>').join('')+'<div class="detail-row"><span class="detail-key">费用状态</span><button class="toggle-fee-btn" onclick="toggleFee(\''+id+'\')" style="'+(isOut?'background:#e8f5e9;color:#2e7d32':'background:#fce4ec;color:#c62828')+'">'+(isOut?'✅ 已出':'⏳ 未出')+' 点击切换</button></div><div class="detail-btns"><button class="edit-btn" onclick="openEdit(\''+id+'\')">✏️ 编辑</button><button class="delete-btn" onclick="delRecord(\''+id+'\')">🗑 删除</button></div>';showView('detail');}
+async function toggleFee(id){const r=records.find(x=>x.id===id);if(!r)return;const ns=r.feeStatus==='已出'?'未出':'已出';try{await col.doc(id).update({feeStatus:ns,updatedAt:Date.now()});toast(ns==='已出'?'✅ 已出':'🔄 已切换为未出');setTimeout(()=>openDetail(id),300);}catch(e){toast('更新失败');}}
+async function delRecord(id){if(!confirm('确认删除此记录？'))return;try{await col.doc(id).delete();toast('已删除');showView('list');}catch(e){toast('删除失败');}}
+col.orderBy('createdAt','desc').onSnapshot(snap=>{records=snap.docs.map(d=>({id:d.id,...d.data()}));renderList();if(firstLoad){firstLoad=false;clearTimeout(tmout);document.getElementById('loadingScreen').style.display='none';document.getElementById('appMain').style.display='';showView('list');}},err=>{showErr('数据库错误：'+err.message);});
+</script>
+</body>
+</html>
