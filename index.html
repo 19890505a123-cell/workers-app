@@ -14,10 +14,10 @@ body{font-family:'PingFang SC','Hiragino Sans GB',sans-serif;background:#f0f2f5;
 .body{padding:14px}
 .search-input{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid #dde3f0;font-size:14px;background:#fff;outline:none;margin-bottom:10px}
 .filter-row{display:flex;gap:6px;margin-bottom:12px}
-.filter-btn{flex:1;padding:7px 0;border-radius:8px;border:1.5px solid #dde3f0;background:#fff;font-size:12px;color:#666;cursor:pointer;font-family:inherit}
+.filter-btn{flex:1;padding:7px 0;border-radius:8px;border:1.5px solid #dde3f0;background:#fff;font-size:13px;color:#666;cursor:pointer;font-family:inherit}
 .filter-btn.active{background:#1a6fc4;color:#fff;border-color:#1a6fc4;font-weight:700}
 .stats-row{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto}
-.stat-card{flex:0 0 auto;min-width:64px;background:#fff;border-radius:12px;padding:10px 6px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.stat-card{flex:0 0 auto;min-width:72px;background:#fff;border-radius:12px;padding:10px 6px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.06)}
 .stat-num{font-size:20px;font-weight:800;color:#1a6fc4}
 .stat-label{font-size:10px;color:#999;margin-top:2px}
 .list{display:flex;flex-direction:column;gap:10px}
@@ -133,8 +133,8 @@ function setMode(btn,m){selMode=m;document.querySelectorAll('#modeRow .sel-btn')
 function setFee(btn,s){selFee=s;document.querySelectorAll('#feeRow .sel-btn').forEach(b=>{b.classList.remove('active','fee-active-out','fee-active-pending');});btn.classList.add('active',s==='已出'?'fee-active-out':'fee-active-pending');}
 function renderList(){
   const q=(document.getElementById('searchInput').value||'').trim();
-  document.getElementById('filterRow').innerHTML=['全部','日结','（周结）','月结','劳务'].map(m=>'<button class="filter-btn'+(filterMode===m?' active':'')+'" onclick="setFilter(\''+m+'\')">'+m+'</button>').join('');
-  document.getElementById('statsRow').innerHTML='<div class="stat-card"><div class="stat-num">'+records.length+'</div><div class="stat-label">总人数</div></div>'+['日结','（周结）','月结','劳务'].map(m=>'<div class="stat-card"><div class="stat-num">'+records.filter(r=>r.mode===m).length+'</div><div class="stat-label">'+m+'</div></div>').join('');
+  document.getElementById('filterRow').innerHTML=['全部','日结','月结'].map(m=>'<button class="filter-btn'+(filterMode===m?' active':'')+'" onclick="setFilter(\''+m+'\')">'+m+'</button>').join('');
+  document.getElementById('statsRow').innerHTML='<div class="stat-card"><div class="stat-num">'+records.length+'</div><div class="stat-label">总人数</div></div>'+['日结','月结'].map(m=>'<div class="stat-card"><div class="stat-num">'+records.filter(r=>r.mode===m).length+'</div><div class="stat-label">'+m+'</div></div>').join('');
   const list=records.filter(r=>(!q||r.name.includes(q)||r.factory.includes(q)||r.phone.includes(q))&&(filterMode==='全部'||r.mode===filterMode));
   document.getElementById('cardList').innerHTML=list.length?list.map(r=>'<div class="card" onclick="openDetail(\''+r.id+'\')"><div class="card-top"><span class="card-name">'+r.name+'</span><span class="mode-tag mode-'+r.mode+'">'+r.mode+'</span>'+dlBadge(r.deadline)+'<span class="fee-badge '+(r.feeStatus==='已出'?'fee-out':'fee-pending')+'">'+(r.feeStatus||'未出')+'</span></div><div class="card-row"><span>🏭 '+r.factory+'</span><span>📅 '+fmt(r.date)+' 进厂</span></div><div class="card-row"><span>📱 '+r.phone+'</span>'+(r.deadline?'<span>工期至 '+fmt(r.deadline)+'</span>':'')+'</div>'+(r.fee?'<div class="card-note">💰 费用：'+r.fee+'</div>':'')+(r.labor?'<div class="card-note">🏢 劳务：'+r.labor+'</div>':'')+(r.note?'<div class="card-note">📝 备注：'+r.note+'</div>':'')+'</div>').join(''):'<div class="empty">暂无记录</div>';
 }
